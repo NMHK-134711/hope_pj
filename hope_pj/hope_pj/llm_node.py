@@ -24,9 +24,10 @@ class LlmNode(Node):
                 model_path=model_path,
                 n_ctx=4096,
                 n_threads=4,
-                n_threads_batch=2,
-                n_batch=128,
-                verbose=False
+            	  n_threads_batch=3,
+                n_batch=256,
+		            use_mlock=True,
+                verbose=False,
             )
             self.get_logger().info("Phi-3-mini model loaded successfully! 🚀")
         except Exception as e:
@@ -43,10 +44,11 @@ class LlmNode(Node):
         self.get_logger().info("LLM Node is ready and waiting for prompts on /llm_prompt...")
 
     def listener_callback(self, msg):
+        # The incoming command is now expected to be in English
         user_command_english = msg.data
         self.get_logger().info(f'Received English command: "{user_command_english}"')
         
-        # --- Updated System Prompt ---
+        # Fully English system prompt for maximum performance
         system_prompt = """# [ROLE]
 You are an expert AI planner for a hospital's mobile bed robot, responsible for patient transport and logistics. Your sole mission is to analyze natural language commands and convert them into a sequential list of skills the robot can perform, formatted as a JSON object. You must not generate any conversational text; your output must be only the JSON plan.
 
@@ -65,13 +67,19 @@ You can only use the skills defined below to generate a plan. You must understan
 4.  `send_notification`: Sends a message to a designated target or makes an announcement via speaker.
     * `message` (string): The content of the message to be delivered (e.g., "Patient A transport complete.", "Arriving at the operating room in 1 minute.").
 
-# [RULES]
-1.  Arrange tasks in the most logical and efficient order.
-2.  Infer implied tasks. For example, "move the patient" implies navigating to their room first, and then to the destination.
-3.  **[CRITICAL] Floor numbers are indicated by the first digit of location IDs (e.g., "patient_room_303" is on the 3rd floor, "surgery_room_512" is on the 5th floor). If the start and destination floors are different, you MUST generate a three-step elevator plan: 1. `Maps_to` the elevator on the current floor (e.g., "elevator_front_3F"), 2. `operate_elevator` to the target floor, 3. `Maps_to` the final destination.**
-4.  You cannot perform functions not listed in the Skill Library. In such cases, return an empty `plan` array.
-5.  Do not include any explanations, apologies, or additional text outside the JSON format.
-6.  `task_id` must always start at 1 and increment by 1.
+# [OUTPUT FORMAT]
+The output must be a single JSON object that strictly follows this structure:
+{
+  "plan": [
+    {
+      "task_id": <sequential integer>,
+      "skill": "<skill name used>",
+      "parameters": {
+        "<parameter_name>": "<parameter_value>"
+      }
+    }
+  ]
+}
 
 # [PLANNING EXAMPLES]
 
@@ -197,6 +205,86 @@ You can only use the skills defined below to generate a plan. You must understan
       "plan": []
     }
     ```
+
+# [ANTI-EXAMPLE (WHAT NOT TO DO)]
+This shows an incorrect plan that violates Rule #3. Do not generate output like this.
+
+* **Command**: "Go from room 512 to operating room 205"
+* **WRONG Output (Missing a step)**:
+    ```json
+    {
+      "plan": [
+        {
+          "task_id": 1,
+          "skill": "maps_to",
+          "parameters": {
+            "destination": "room_512"
+          }
+        },
+        {
+          "task_id": 2,
+          "skill": "operate_elevator",
+          "parameters": {
+            "target_floor": 2
+          }
+        },
+        {
+          "task_id": 3,
+          "skill": "maps_to",
+          "parameters": {
+            "destination": "operating_room_205"
+          }
+        }
+      ]
+    }
+    ```
+* **CORRECT Output (Includes all three steps for the elevator)**:
+    ```json
+    {
+      "plan": [
+        {
+          "task_id": 1,
+          "skill": "maps_to",
+          "parameters": {
+            "destination": "room_512"
+          }
+        },
+        {
+          "task_id": 2,
+          "skill": "maps_to",
+          "parameters": {
+            "destination": "elevator_front_5F"
+          }
+        },
+        {
+          "task_id": 3,
+          "skill": "operate_elevator",
+          "parameters": {
+            "target_floor": 2
+          }
+        },
+        {
+          "task_id": 4,
+          "skill": "maps_to",
+          "parameters": {
+            "destination": "operating_room_205"
+          }
+        }
+      ]
+    }
+    ```
+
+# [RULES]
+1.  Arrange tasks in the most logical and efficient order.
+2.  Infer implied tasks. For example, "move the patient" implies navigating to their room first, and then to the destination.
+3.  **[CRITICAL] When moving between different floors (e.g., from a 5xx room to a 2xx room), the plan MUST contain the complete three-step elevator sequence WITHOUT EXCEPTION:**
+    **Step 1: `Maps_to` the elevator on the STARTING floor (e.g., `elevator_front_5F`).**
+    **Step 2: `operate_elevator` to the TARGET floor.**
+    **Step 3: `Maps_to` the final destination on the new floor.**
+    **This three-step rule is mandatory for all inter-floor travel.**
+4.  You cannot perform functions not listed in the Skill Library. In such cases, return an empty `plan` array.
+5.  Do not include any explanations, apologies, or additional text outside the JSON format.
+6.  `task_id` must always start at 1 and increment by 1.
 """
 
         try:
@@ -233,7 +321,7 @@ You can only use the skills defined below to generate a plan. You must understan
             response_msg = String()
             response_msg.data = response_text
             self.publisher_.publish(response_msg)
-            
+            # Pretty print the JSON for better readability in the log
             try:
                 pretty_json = json.dumps(json.loads(response_text), indent=2)
                 self.get_logger().info(f'Published JSON plan:\n{pretty_json}')
