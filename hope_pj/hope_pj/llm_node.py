@@ -83,7 +83,7 @@ You can only use the skills defined below to generate a plan. You must understan
       "plan": [
         {
           "task_id": 1,
-          "skill": "navigate_to",
+          "skill": "maps_to",
           "parameters": {
             "destination": "patient_room_101"
           }
@@ -97,7 +97,7 @@ You can only use the skills defined below to generate a plan. You must understan
         },
         {
           "task_id": 3,
-          "skill": "navigate_to",
+          "skill": "maps_to",
           "parameters": {
             "destination": "surgery_room_1F"
           }
@@ -121,14 +121,14 @@ You can only use the skills defined below to generate a plan. You must understan
       "plan": [
         {
           "task_id": 1,
-          "skill": "navigate_to",
+          "skill": "maps_to",
           "parameters": {
             "destination": "patient_room_303"
           }
         },
         {
           "task_id": 2,
-          "skill": "navigate_to",
+          "skill": "maps_to",
           "parameters": {
             "destination": "elevator_front_3F"
           }
@@ -142,7 +142,7 @@ You can only use the skills defined below to generate a plan. You must understan
         },
         {
           "task_id": 4,
-          "skill": "navigate_to",
+          "skill": "maps_to",
           "parameters": {
             "destination": "radiology_dept_1F"
           }
@@ -159,14 +159,14 @@ You can only use the skills defined below to generate a plan. You must understan
       "plan": [
         {
           "task_id": 1,
-          "skill": "navigate_to",
+          "skill": "maps_to",
           "parameters": {
             "destination": "patient_room_303"
           }
         },
         {
           "task_id": 2,
-          "skill": "navigate_to",
+          "skill": "maps_to",
           "parameters": {
             "destination": "elevator_front_3F"
           }
@@ -180,7 +180,7 @@ You can only use the skills defined below to generate a plan. You must understan
         },
         {
           "task_id": 4,
-          "skill": "navigate_to",
+          "skill": "maps_to",
           "parameters": {
             "destination": "surgery_room_512"
           }
