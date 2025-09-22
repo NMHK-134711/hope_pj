@@ -34,7 +34,7 @@ class ControlNode(Node):
             self.navigation_complete_callback,
             10)
 
-        self.get_logger().info('✅ Control Node has been initialized and is ready.')
+        self.get_logger().info('Control Node has been initialized and is ready.')
         self.publish_status("Control Node is waiting for a plan from LlmNode.")
 
     def publish_status(self, message):
@@ -47,7 +47,7 @@ class ControlNode(Node):
     def llm_response_callback(self, msg):
         """LlmNode로부터 받은 JSON 계획을 처리하는 콜백 함수"""
         if self.is_executing_plan:
-            self.publish_status("⚠️ Warning: Received a new plan, but a current plan is already executing. Ignoring new plan.")
+            self.publish_status("Warning: Received a new plan, but a current plan is already executing. Ignoring new plan.")
             return
 
         self.publish_status(f"Received new plan from LLM: {msg.data}")
@@ -63,21 +63,21 @@ class ControlNode(Node):
             # 계획 실행 시작
             self.is_executing_plan = True
             self.current_task_index = 0
-            self.publish_status(f"🚀 Starting execution of a new plan with {len(self.current_plan)} tasks.")
+            self.publish_status(f"Starting execution of a new plan with {len(self.current_plan)} tasks.")
             self.execute_current_task()
 
         except json.JSONDecodeError:
-            self.publish_status("❌ Error: Failed to decode JSON from /llm_response.")
+            self.publish_status("Error: Failed to decode JSON from /llm_response.")
             self.reset_state()
 
     def navigation_complete_callback(self, msg):
         """SlamNode로부터 이동 완료 신호를 받았을 때 호출되는 콜백 함수"""
         if not self.is_waiting_for_nav:
-            self.publish_status("⚠️ Warning: Received a navigation complete signal, but was not waiting for one. Ignoring.")
+            self.publish_status("Warning: Received a navigation complete signal, but was not waiting for one. Ignoring.")
             return
 
         self.is_waiting_for_nav = False
-        self.publish_status(f"✅ Navigation task completed with status: '{msg.data}'. Proceeding to the next task.")
+        self.publish_status(f"Navigation task completed with status: '{msg.data}'. Proceeding to the next task.")
         
         # 다음 작업으로 이동
         self.current_task_index += 1
