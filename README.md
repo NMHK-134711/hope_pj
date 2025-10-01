@@ -1,10 +1,10 @@
-# 🏥 Project HOPE: LLM 기반 지능형 병원 침대 로봇
+# 🏥 APTS: On-Board LLM 기반 지능형 병원 침대 로봇
 
-**HOPE**: **H**ospital **O**perations & **P**lanning **E**ngine
+**APTS**: **A**utonomous **P**atient **T**ransport **S**ystem
 
 ## 📝 프로젝트 개요 (Overview)
 
-**Project HOPE**는 거대 언어 모델(LLM)을 탑재하여 자연어 명령을 이해하고 자율적으로 환자 이송 임무를 수행하는 지능형 병원 침대 로봇입니다.
+**APTS**는 On-Board LLM을 탑재하여 자연어 명령을 이해하고 자율적으로 환자 이송 임무를 수행하는 지능형 병원 침대 로봇입니다.
 
 고령화 사회 진입으로 인해 거동이 불편한 환자 수는 급증하는 반면, 한정된 의료 인력은 과도한 육체노동과 번아웃에 직면하고 있습니다. 본 프로젝트는 이러한 의료 현장의 '그림자 노동'인 환자 이송 업무를 자동화하여, 의료진이 환자 케어라는 본연의 업무에 집중할 수 있는 환경을 만들고, 병원 운영의 효율성과 안전성을 극대화하는 것을 목표로 합니다.
 
@@ -32,7 +32,7 @@
 
 | 노드 (Node) | 역할 | 핵심 기술 |
 | :--- | :--- | :--- |
-| **LlmNode** | 자연어 명령을 작업 계획(JSON)으로 변환 | **LLM (Phi-3.5-mini)**, **Quantization (GGUF)** |
+| **LlmNode** | 자연어 명령을 작업 계획(JSON)으로 변환 | **LLM (Phi-3.5-mini)**, **4bit Quantization (GGUF)** |
 | **ControlNode** | LLM의 계획을 해석하여 각 노드에 명령 전달 | **Task Orchestration** |
 | **SlamNode** | 자율주행 실행 및 결과 보고 | **ROS 2 Nav2**, **AMCL**, **Cartographer** |
 | **PiMonitorNode** | Raspberry Pi 하드웨어 상태 모니터링 | `psutil`, Custom ROS Message |
@@ -42,8 +42,8 @@
 
 ### 사전 요구사항
 
-  * **Robot H/W**: Raspberry Pi 5, OpenCR, YDLIDAR G6
-  * **Robot S/W**: Ubuntu 22.04, ROS 2 Humble
+  * **Robot H/W**: Raspberry Pi 5, OpenCR, YDLIDAR G6, Dynamixel XL430-W250-T
+  * **Robot S/W**: Ubuntu 22.04, ROS 2 Humble by docker
   * **PC S/W**: Ubuntu 22.04 (Conda 환경 권장), ROS 2 Humble, PyQt5
 
 ### 설치 및 실행
