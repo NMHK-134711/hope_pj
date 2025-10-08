@@ -36,7 +36,6 @@
 | **ControlNode** | LLM의 계획을 해석하여 각 노드에 명령 전달 | **Task Orchestration** |
 | **SlamNode** | 자율주행 실행 및 결과 보고 | **ROS 2 Nav2**, **AMCL**, **Cartographer** |
 | **PiMonitorNode** | Raspberry Pi 하드웨어 상태 모니터링 | `psutil`, Custom ROS Message |
-| **LLMController** | 원격 PC GUI 컨트롤러 | **PyQt5**, Multi-threading |
 
 ## 🚀 시작하기 (Getting Started)
 
